@@ -8,7 +8,7 @@
   "contact": {
     "repo": "https://github.com/Nova-Committee/Linker"
   },
-  "license": "All-Rights-Reserved",
+  "license": "GPL-V3",
   "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
