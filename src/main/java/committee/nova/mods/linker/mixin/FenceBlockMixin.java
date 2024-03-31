@@ -33,7 +33,7 @@ import java.util.List;
 @Mixin(FenceBlock.class)
 public class FenceBlockMixin implements Linkable {
     @Inject(method = "use", at = @At("HEAD"), cancellable = true)
-    public void use(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
+    public void linker$use(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
         if (level.isClientSide) {
             ItemStack itemInHand = player.getItemInHand(interactionHand);
             cir.setReturnValue(itemInHand.isEmpty() || itemInHand.is(Linker.LINKERS) ? InteractionResult.SUCCESS : InteractionResult.PASS);

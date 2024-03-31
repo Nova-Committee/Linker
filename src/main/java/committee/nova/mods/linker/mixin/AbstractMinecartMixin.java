@@ -18,6 +18,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -42,10 +43,10 @@ import java.util.UUID;
  * @description
  * @date 2024/3/30 22:16
  */
-@Mixin(Boat.class)
-public abstract class BoatMixin extends Entity implements Linkable {
+@Mixin(AbstractMinecart.class)
+public abstract class AbstractMinecartMixin extends Entity implements Linkable {
     @Unique
-    private static final EntityDataAccessor<Integer> MASTER_ID = SynchedEntityData.defineId(Boat.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> MASTER_ID = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.INT);
     @Unique
     String MASTER_UUID = "Linker-Master";
     @Unique
@@ -56,13 +57,13 @@ public abstract class BoatMixin extends Entity implements Linkable {
     private UUID linker$masterUUID;
     @Unique
     private ItemStack linker$itemStack = Items.CHAIN.getDefaultInstance();
-    public BoatMixin(EntityType<?> entityType, Level level) {
+    public AbstractMinecartMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
     }
 
     @Inject(at = @At("HEAD"), method = "tick")
     private void linker$tick(CallbackInfo ci) {
-        Boat boat = (Boat) (Object) this;
+        AbstractMinecart minecart = (AbstractMinecart) (Object) this;
         if (level().isClientSide) {
             int id = entityData.get(MASTER_ID);
             if (id == Integer.MIN_VALUE) {
@@ -72,7 +73,7 @@ public abstract class BoatMixin extends Entity implements Linkable {
                 this.linker$setMaster(entity);
             }
         } else {
-            tickSave(boat);
+            tickSave(minecart);
             if (this.linker$master != null && !this.linker$master.isAlive()) {
                 linkerBreak(false);
                 return;
@@ -108,11 +109,6 @@ public abstract class BoatMixin extends Entity implements Linkable {
     private void linker$read(CompoundTag nbt, CallbackInfo ci) {
         if (nbt.contains(MASTER_UUID)) this.linker$masterUUID = nbt.getUUID(MASTER_UUID);
         if (nbt.contains(LINK_ITEM)) this.linker$itemStack = ItemStack.of(nbt.getCompound(LINK_ITEM));
-    }
-
-    @Inject(method = "interact", at = @At("RETURN"), cancellable = true)
-    public void linker$interact(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
-        cir.setReturnValue(interactBoat(player, hand, this) ? InteractionResult.SUCCESS : super.interact(player, hand));
     }
 
     @Inject(method = "destroy", at = @At("RETURN"))
@@ -224,28 +220,6 @@ public abstract class BoatMixin extends Entity implements Linkable {
 
             this.setDeltaMovement(getDeltaMovement().add(v));
         }
-    }
-
-    @Unique
-    boolean interactBoat(Player player, InteractionHand hand, Entity entity) {
-        ItemStack itemInHand = player.getItemInHand(hand);
-        boolean validItem = itemInHand.isEmpty() || itemInHand.is(Linker.LINKERS);
-        if (this.linker$getMaster() != null && ((this.linker$getMaster() == player && validItem) || itemInHand.is(Items.SHEARS))) {
-            boatLinker$resetMaster();
-            entity.playSound(SoundEvents.CHAIN_BREAK);
-            entity.spawnAtLocation(linker$getLinkItem());
-            return true;
-        } else if (this.linker$getMaster() == null) {
-            if (player.isShiftKeyDown() && validItem && LinkUtils.linkTo(player, player.level(), entity)) {
-                return true;
-            } else if (itemInHand.is(Linker.LINKERS)) {
-                this.linker$setMaster(player);
-                entity.playSound(SoundEvents.CHAIN_PLACE);
-                itemInHand.shrink(1);
-                return true;
-            }
-        }
-        return false;
     }
 
 

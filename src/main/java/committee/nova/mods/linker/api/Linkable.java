@@ -20,6 +20,8 @@ public interface Linkable {
         throw new IllegalStateException("Implemented via mixin");
     }
 
+    default void boatLinker$resetMaster(){};
+
     default ItemStack linker$getLinkItem() {
         throw new IllegalStateException("Implemented via mixin");
     }

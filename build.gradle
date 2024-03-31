@@ -7,7 +7,7 @@ version = project.mod_version
 group = project.maven_group
 
 base {
-    archivesName = project.archives_base_name
+    archivesName = project.archives_base_name + "-" + project.minecraft_version
 }
 
 repositories {
@@ -45,7 +45,6 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modApi include("me.melontini.dark-matter:dark-matter-base:${project.dark_matter_version}")
     implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${project.mixin_extras_version}"))
     compileOnly ("org.projectlombok:lombok:1.18.24")
     annotationProcessor ("org.projectlombok:lombok:1.18.24")
