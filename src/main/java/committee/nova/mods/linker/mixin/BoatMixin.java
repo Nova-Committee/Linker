@@ -3,7 +3,6 @@ package committee.nova.mods.linker.mixin;
 import committee.nova.mods.linker.Linker;
 import committee.nova.mods.linker.api.Linkable;
 import committee.nova.mods.linker.utils.LinkUtils;
-import committee.nova.mods.linker.utils.LinkerSave;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -72,7 +71,6 @@ public abstract class BoatMixin extends Entity implements Linkable {
                 this.linker$setMaster(entity);
             }
         } else {
-            tickSave(boat);
             if (this.linker$master != null && !this.linker$master.isAlive()) {
                 linkerBreak(false);
                 return;
@@ -180,19 +178,6 @@ public abstract class BoatMixin extends Entity implements Linkable {
         boatLinker$resetMaster();
         spawnAtLocation(this.linker$itemStack);
     }
-
-    @Unique
-    public void tickSave(Linkable linkable) {
-        if (Linker.config.chunkLoading) {
-            if (linker$getMaster() != null ) {
-                ((ServerLevel) this.level()).getChunkSource().addRegionTicket(TicketType.PORTAL, this.chunkPosition(), Linker.config.chunkLoadingRadius, this.blockPosition());
-                LinkerSave.getOrCreate((ServerLevel) this.level()).addLinkable(linkable);
-            } else {
-                LinkerSave.getOrCreate((ServerLevel) this.level()).removeLinkable(linkable);
-            }
-        }
-    }
-
 
     @Unique
     public void tickPull() {

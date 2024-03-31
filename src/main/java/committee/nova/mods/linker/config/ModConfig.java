@@ -19,8 +19,4 @@ public class ModConfig {
     public double pathfindingDistance = 24d;
     @Expose
     public double distance = 24d;
-    @Expose
-    public boolean chunkLoading = true;
-    @Expose
-    public int chunkLoadingRadius = 8;
 }

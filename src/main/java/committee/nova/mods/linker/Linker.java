@@ -2,9 +2,7 @@ package committee.nova.mods.linker;
 
 import committee.nova.mods.linker.config.ConfigHandler;
 import committee.nova.mods.linker.config.ModConfig;
-import committee.nova.mods.linker.mixin.DimensionDataAccessor;
 import committee.nova.mods.linker.utils.FileUtils;
-import committee.nova.mods.linker.utils.LinkerSave;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
@@ -48,14 +46,5 @@ public class Linker implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        ServerWorldEvents.LOAD.register((server, world) -> {
-            if (config.chunkLoading) LinkerSave.getOrCreate(world);
-        });
-
-        ServerTickEvents.START_WORLD_TICK.register(world -> {
-            if (config.chunkLoading && ((DimensionDataAccessor) world.getDataStorage()).linker$cache().containsKey("loading_linkable")) {
-                LinkerSave.getOrCreate(world).tick(world);
-            }
-        });
     }
 }

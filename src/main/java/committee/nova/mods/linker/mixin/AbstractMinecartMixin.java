@@ -2,24 +2,16 @@ package committee.nova.mods.linker.mixin;
 
 import committee.nova.mods.linker.Linker;
 import committee.nova.mods.linker.api.Linkable;
-import committee.nova.mods.linker.utils.LinkUtils;
-import committee.nova.mods.linker.utils.LinkerSave;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.TicketType;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -30,7 +22,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 import java.util.UUID;
@@ -73,7 +64,6 @@ public abstract class AbstractMinecartMixin extends Entity implements Linkable {
                 this.linker$setMaster(entity);
             }
         } else {
-            tickSave(minecart);
             if (this.linker$master != null && !this.linker$master.isAlive()) {
                 linkerBreak(false);
                 return;
@@ -176,19 +166,6 @@ public abstract class AbstractMinecartMixin extends Entity implements Linkable {
         boatLinker$resetMaster();
         spawnAtLocation(this.linker$itemStack);
     }
-
-    @Unique
-    public void tickSave(Linkable linkable) {
-        if (Linker.config.chunkLoading) {
-            if (linker$getMaster() != null ) {
-                ((ServerLevel) this.level()).getChunkSource().addRegionTicket(TicketType.PORTAL, this.chunkPosition(), Linker.config.chunkLoadingRadius, this.blockPosition());
-                LinkerSave.getOrCreate((ServerLevel) this.level()).addLinkable(linkable);
-            } else {
-                LinkerSave.getOrCreate((ServerLevel) this.level()).removeLinkable(linkable);
-            }
-        }
-    }
-
 
     @Unique
     public void tickPull() {
